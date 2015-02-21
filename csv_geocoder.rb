@@ -6,6 +6,7 @@ class CSVGeocoder
 	attr_accessor :csv, :address_label
 
 	def initialize(file)
+		@address_label = 'Address'
 		set_csv(file)
 	end
 
@@ -19,6 +20,7 @@ class CSVGeocoder
 
 	def get_lat_lng(address)
 		return nil if address.nil?
+		sleep 0.25
 		gc = Geocoder.search(address)
 		gc.first.geometry['location'] if gc
 	end
@@ -32,7 +34,7 @@ class CSVGeocoder
 
 	def get_lat_lngs
 		get_addresses.map do |address|
-			(address == nil) ? nil : (get_lat_lng address)
+			(address.nil? || address.empty? || (address == @address_label)) ? nil : (get_lat_lng address)
 		end
 	end
 
