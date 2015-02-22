@@ -1,13 +1,17 @@
 require 'csv'
 require 'geocoder'
+require 'pry'
 
 class CSVGeocoder
   class AddressNotFoundError < ArgumentError; end
+  class GeocodingAPIError < StandardError; end
   ADDRESS_NOT_FOUND_MESSAGE = "The address column was not found in the CSV using the address label given."
-  attr_accessor :csv, :address_label
+  GEOCODING_API_ERROR_MESSAGE = "Geocoding API error (probably over query limit)"
+  attr_accessor :csv, :address_label, :delay
 
   def initialize(file, address='Address')
     @address_label = address
+    @delay = 0.21
     read_csv(file)
   end
 
@@ -50,9 +54,16 @@ class CSVGeocoder
 
   def get_lat_lng(address)
     return nil if skip_address? address
-    sleep 0.25
+    sleep @delay
     gc = Geocoder.search(address)
-    gc.first.geometry['location'] if gc
+    if gc.first.respond_to? :geometry
+      gc.first.geometry['location']
+    else
+      # gc == []
+      # this gem doesn't raise or return an error message,
+      # just prints to stdout. we'll raise it ourselves:
+      raise GeocodingAPIError, GEOCODING_API_ERROR_MESSAGE
+    end
   end
 
   def get_address_index
