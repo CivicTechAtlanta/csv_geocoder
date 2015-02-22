@@ -5,11 +5,13 @@ require 'pry'
 class CSVGeocoder
   class AddressNotFoundError < ArgumentError; end
   class GeocodingAPIError < StandardError; end
-  ADDRESS_NOT_FOUND_MESSAGE = "The address column was not found in the CSV using the address label given."
-  GEOCODING_API_ERROR_MESSAGE = "Geocoding API error (probably over query limit)"
+  ADDRESS_NOT_FOUND_MESSAGE =
+    'The address column was not found in the CSV using the address label given.'
+  GEOCODING_API_ERROR_MESSAGE =
+    'Geocoding API error (probably over query limit).'
   attr_accessor :csv, :address_label, :delay
 
-  def initialize(file, address='Address')
+  def initialize(file, address = 'Address')
     @address_label = address
     @delay = 0.21
     read_csv(file)
@@ -20,7 +22,7 @@ class CSVGeocoder
   end
 
   def write_csv_with_geocode(file)
-    merge_csv_with get_lat_lngs
+    merge_csv_with lat_lngs
     add_lat_lng_labels
     CSV.open(file, 'wb') do |csv|
       @csv.each do |row|
@@ -31,9 +33,9 @@ class CSVGeocoder
 
   protected
 
-  def get_lat_lngs
-    get_addresses.map do |address|
-      (skip_address? address) ? nil : (get_lat_lng address)
+  def lat_lngs
+    addresses.map do |address|
+      (skip_address? address) ? nil : (lat_lng address)
     end
   end
 
@@ -42,17 +44,15 @@ class CSVGeocoder
     @csv[0][-1] = 'Longitude'
   end
 
-  def get_addresses
-    begin
-      @csv.map do |row|
-        row[get_address_index]
-      end
-    rescue TypeError => e
-      raise AddressNotFoundError, ADDRESS_NOT_FOUND_MESSAGE
+  def addresses
+    @csv.map do |row|
+      row[address_index]
     end
+    rescue TypeError
+      raise AddressNotFoundError, ADDRESS_NOT_FOUND_MESSAGE
   end
 
-  def get_lat_lng(address)
+  def lat_lng(address)
     return nil if skip_address? address
     sleep @delay
     gc = Geocoder.search(address)
@@ -66,7 +66,7 @@ class CSVGeocoder
     end
   end
 
-  def get_address_index
+  def address_index
     address_regex = Regexp.new(@address_label, Regexp::IGNORECASE)
     @csv[0].index { |label| address_regex.match(label) }
   end
