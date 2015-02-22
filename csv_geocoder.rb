@@ -6,6 +6,9 @@ class CSVGeocoder
   class AddressNotFoundError < ArgumentError; end
   ADDRESS_NOT_FOUND_MESSAGE =
     'The address column was not found in the CSV using the address label given.'
+  EMPTY_GEOCODE = { 'lat' => nil, 'lng' => nil }
+  TITLE_GEOCODE = { 'lat' => 'Latitude', 'lng' => 'Longitude' }
+  ERROR_GEOCODE = { 'lat' => 'API Error', 'lng' => 'API Error' }
   attr_accessor :csv, :address_label, :delay
 
   def initialize(file, address = 'Address')
@@ -20,7 +23,6 @@ class CSVGeocoder
 
   def write_csv_with_geocode(file)
     merge_csv_with lat_lngs
-    add_lat_lng_labels
     CSV.open(file, 'wb') do |csv|
       @csv.each do |row|
         csv << row
@@ -32,13 +34,8 @@ class CSVGeocoder
 
   def lat_lngs
     addresses.map do |address|
-      (skip_address? address) ? nil : (lat_lng address)
+      lat_lng address
     end
-  end
-
-  def add_lat_lng_labels
-    @csv[0][-2] = 'Latitude'
-    @csv[0][-1] = 'Longitude'
   end
 
   def addresses
@@ -50,7 +47,8 @@ class CSVGeocoder
   end
 
   def lat_lng(address)
-    return nil if skip_address? address
+    return TITLE_GEOCODE if title_row? address
+    return EMPTY_GEOCODE if no_address? address
     sleep @delay
     gc = Geocoder.search(address)
     if gc.first.respond_to? :geometry
@@ -58,7 +56,7 @@ class CSVGeocoder
     else
       # this gem doesn't raise or return an error message,
       # just prints to stdout. Let's pass this error along to the CSV output
-      'error'
+      ERROR_GEOCODE
     end
   end
 
@@ -67,20 +65,18 @@ class CSVGeocoder
     @csv[0].index { |label| address_regex.match(label) }
   end
 
-  def skip_address?(addr)
-    addr.nil? || addr.empty? || addr == @address_label
+  def title_row?(addr)
+    addr == @address_label
+  end
+
+  def no_address?(addr)
+    addr.nil? || addr.empty?
   end
 
   def merge_csv_with(lat_lng)
     @csv.each do |row|
       this_lat_lng = lat_lng.shift
-      if this_lat_lng.nil?
-        row << nil << nil
-      elsif this_lat_lng == 'error'
-        row << 'error' << 'error'
-      else
-        row << "#{this_lat_lng['lat']}" << "#{this_lat_lng['lng']}"
-      end
+      row << this_lat_lng['lat'] << this_lat_lng['lng']
     end
   end
 end
