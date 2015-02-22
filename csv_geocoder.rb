@@ -2,10 +2,12 @@ require 'csv'
 require 'geocoder'
 
 class CSVGeocoder
+  class AddressNotFoundError < ArgumentError; end
+  ADDRESS_NOT_FOUND_MESSAGE = "The address column was not found in the CSV using the address label given."
   attr_accessor :csv, :address_label
 
-  def initialize(file)
-    @address_label = 'Address'
+  def initialize(file, address='Address')
+    @address_label = address
     read_csv(file)
   end
 
@@ -37,8 +39,12 @@ class CSVGeocoder
   end
 
   def get_addresses
-    @csv.map do |row|
-      row[get_address_index]
+    begin
+      @csv.map do |row|
+        row[get_address_index]
+      end
+    rescue TypeError => e
+      raise AddressNotFoundError, ADDRESS_NOT_FOUND_MESSAGE
     end
   end
 

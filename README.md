@@ -6,6 +6,12 @@ Adds latitude and longitude information to your CSV file.
 Usage
 -----
 
-    csv_file = CSVGeocoder.new 'origfile.csv'
-    csv_file.address_label = "Street Address" # optional, defaults to "Address"
-    csv_file.write_csv_with_geocode 'newfile.csv'
+    csvg = CSVGeocoder.new 'origfile.csv'
+    csvg.write_csv_with_geocode 'newfile.csv'
+
+Specify Address Label
+---------------------
+
+The label for the address column is assumed to be 'Address' by default. If it is not, you can specify the column name in the initializer like this:
+
+     csvg = CSVGeocoder.new 'origfile.csv', 'street address'
