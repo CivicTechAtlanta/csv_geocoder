@@ -16,6 +16,8 @@ The label for the address column is assumed to be 'Address' by default. If it is
 
     csvg = CSVGeocoder.new 'origfile.csv', 'street address'
 
+The address label is case insensitive.
+
 Delay
 -----
 

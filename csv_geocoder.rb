@@ -67,7 +67,8 @@ class CSVGeocoder
   end
 
   def get_address_index
-    @csv[0].index(@address_label)
+    address_regex = Regexp.new(@address_label, Regexp::IGNORECASE)
+    @csv[0].index { |label| address_regex.match(label) }
   end
 
   def skip_address?(addr)
