@@ -39,11 +39,10 @@ class CSVGeocoder
   end
 
   def addresses
+    fail AddressNotFoundError, ADDRESS_NOT_FOUND_MESSAGE if address_index.nil?
     @csv.map do |row|
       row[address_index]
     end
-    rescue TypeError
-      raise AddressNotFoundError, ADDRESS_NOT_FOUND_MESSAGE
   end
 
   def lat_lng(address)
