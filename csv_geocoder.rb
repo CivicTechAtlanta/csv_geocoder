@@ -47,7 +47,7 @@ class CSVGeocoder
   end
 
   def lat_lng(address)
-    return TITLE_GEOCODE if title_row? address
+    return TITLE_GEOCODE if matches_address_label? address
     return EMPTY_GEOCODE if no_address? address
     sleep @delay
     gc = Geocoder.search(address)
@@ -61,12 +61,15 @@ class CSVGeocoder
   end
 
   def address_index
-    address_regex = Regexp.new(@address_label, Regexp::IGNORECASE)
-    @csv[0].index { |label| address_regex.match(label) }
+    @csv[0].index { |label| matches_address_label? label }
   end
 
-  def title_row?(addr)
-    addr == @address_label
+  def matches_address_label?(addr)
+    address_regex.match(addr)
+  end
+
+  def address_regex
+    Regexp.new(@address_label, Regexp::IGNORECASE)
   end
 
   def no_address?(addr)
