@@ -4,8 +4,11 @@ require 'pry'
 
 class CSVGeocoder
   class AddressNotFoundError < ArgumentError; end
+  class NoCSVToWriteError < StandardError; end
   ADDRESS_NOT_FOUND_MESSAGE =
     'The address column was not found in the CSV using the address label given.'
+  NO_CSV_TO_WRITE =
+    'No CSV file to write, please run generate_csv() before running write().'
   EMPTY_GEOCODE = { 'lat' => nil, 'lng' => nil }
   TITLE_GEOCODE = { 'lat' => 'Latitude', 'lng' => 'Longitude' }
   ERROR_GEOCODE = { 'lat' => 'API Error', 'lng' => 'API Error' }
@@ -30,6 +33,7 @@ class CSVGeocoder
   end
 
   def write(file)
+    fail NoCSVToWriteError if @new_csv.nil?
     CSV.open(file, 'wb') do |csv|
       @new_csv.each do |row|
         csv << row
