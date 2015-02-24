@@ -8,7 +8,7 @@ class CSVGeocoder
   ADDRESS_NOT_FOUND_MESSAGE =
     'The address column was not found in the CSV using the address label given.'
   NO_CSV_TO_WRITE =
-    'No CSV file to write, please run generate_csv() before running write().'
+    'No CSV file to write, please call add_geocode before writing'
   EMPTY_GEOCODE = { 'lat' => nil, 'lng' => nil }
   TITLE_GEOCODE = { 'lat' => 'Latitude', 'lng' => 'Longitude' }
   ERROR_GEOCODE = { 'lat' => 'API Error', 'lng' => 'API Error' }
@@ -27,7 +27,7 @@ class CSVGeocoder
     self
   end
 
-  def generate_csv
+  def add_geocode
     @new_csv = merge_csv_with lat_lngs
     self
   end
