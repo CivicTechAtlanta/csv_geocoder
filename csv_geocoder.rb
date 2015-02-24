@@ -15,15 +15,21 @@ class CSVGeocoder
   def initialize(file, address = 'Address')
     @address_label = address
     @delay = 0.21
+    @new_csv = nil
     read_csv(file)
   end
 
   def read_csv(file)
     @csv = CSV.read(file)
+    self
   end
 
-  def write_csv_with_geocode(file)
+  def generate_csv
     @new_csv = merge_csv_with lat_lngs
+    self
+  end
+
+  def write(file)
     CSV.open(file, 'wb') do |csv|
       @new_csv.each do |row|
         csv << row
