@@ -10,6 +10,7 @@ class CSVGeocoder
   TITLE_GEOCODE = { 'lat' => 'Latitude', 'lng' => 'Longitude' }
   ERROR_GEOCODE = { 'lat' => 'API Error', 'lng' => 'API Error' }
   attr_accessor :csv, :address_label, :delay
+  attr_reader :new_csv
 
   def initialize(file, address = 'Address')
     @address_label = address
@@ -22,9 +23,9 @@ class CSVGeocoder
   end
 
   def write_csv_with_geocode(file)
-    merge_csv_with lat_lngs
+    @new_csv = merge_csv_with lat_lngs
     CSV.open(file, 'wb') do |csv|
-      @csv.each do |row|
+      @new_csv.each do |row|
         csv << row
       end
     end
