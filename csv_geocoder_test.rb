@@ -228,10 +228,34 @@ describe CSVGeocoder do
   end
 
   describe "write" do
+    before do
+      arr_of_arr =
+        [['a', 'Address'],
+         ['b', 'c']]
+
+      CSV.stub :read, arr_of_arr do
+        @csvg = CSVGeocoder.new 'art.csv'
+        @csvg.delay = 0
+      end
+    end
+
     describe "when geocoded csv has been generated" do
+      before do
+        gc = [Gcode.new({'location' => {'lat' => 'x', 'lng' => 'y'}})]
+        Geocoder.stub :search, gc do
+          @csvg.add_geocode
+        end
+      end
+
+      it "calls the CSV.open method" do
+        # not sure how to test this yet
+      end
     end
 
     describe "when geocoded csv has not been generated" do
+      it "raises exception" do
+        ->{ @csvg.write 'somefile.csv' }.must_raise CSVGeocoder::NoCSVToWriteError
+      end
     end
   end
 
