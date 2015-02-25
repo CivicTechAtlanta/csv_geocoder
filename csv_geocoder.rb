@@ -19,10 +19,10 @@ class CSVGeocoder
     @address_label = address
     @delay = 0.21
     @new_csv = nil
-    read_csv(file)
+    read(file)
   end
 
-  def read_csv(file)
+  def read(file)
     @csv = CSV.read(file)
     self
   end

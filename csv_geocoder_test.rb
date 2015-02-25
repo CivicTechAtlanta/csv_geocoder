@@ -66,7 +66,7 @@ describe CSVGeocoder do
 
     @new_csv = [['e','f'],['g','h']]
     CSV.stub :read, @new_csv do
-      @csvg.read_csv('new.csv')
+      @csvg.read('new.csv')
     end
     @csvg.csv.must_be :==, @new_csv
   end
